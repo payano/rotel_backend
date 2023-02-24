@@ -1,0 +1,3 @@
+Work ongoing...
+
+Will add my reciever first but other Rotel ethernet devices could easily be added as well.

@@ -1,0 +1,88 @@
+/*
+ * rotela14.cpp
+ *
+ *  Created on: Feb 24, 2023
+ *      Author: johan
+ */
+
+#include "RotelA14.h"
+
+namespace rotel {
+
+RotelA14::RotelA14() {
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::POWER_ON));
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::POWER_OFF));
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::POWER_TOGGLE));
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::VOL_UP));
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::VOL_DOWN));
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::VOL_NN));
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::MUTE));
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::MUTE_ON));
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::MUTE_OFF));
+	features[COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS].push_back(static_cast<int>(POWER_AND_VOLUME_COMMANDS::VOL_NN));
+
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::CD));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::COAX1));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::COAX2));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::OPT1));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::OPT2));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::AUX1));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::AUX2));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::TUNER));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::PHONO));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::USB));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::BLUETOOTH));
+	features[COMMAND_TYPE::SOURCE_SELECTION_COMMANDS].push_back(static_cast<int>(SOURCE_SELECTION_COMMANDS::PCUSB));
+
+	features[COMMAND_TYPE::SOURCE_CONTROL_COMMANDS].push_back(static_cast<int>(SOURCE_CONTROL_COMMANDS::PLAY));
+	features[COMMAND_TYPE::SOURCE_CONTROL_COMMANDS].push_back(static_cast<int>(SOURCE_CONTROL_COMMANDS::STOP));
+	features[COMMAND_TYPE::SOURCE_CONTROL_COMMANDS].push_back(static_cast<int>(SOURCE_CONTROL_COMMANDS::PAUSE));
+	features[COMMAND_TYPE::SOURCE_CONTROL_COMMANDS].push_back(static_cast<int>(SOURCE_CONTROL_COMMANDS::TRKF));
+	features[COMMAND_TYPE::SOURCE_CONTROL_COMMANDS].push_back(static_cast<int>(SOURCE_CONTROL_COMMANDS::TRKB));
+
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::BYPASS_ON));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::BYPASS_OFF));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::BASS_UP));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::BASS_DOWN));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::BASS_PLUS10));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::BASS_MINUS10));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::BASS_ZERO));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::TREBLE_UP));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::TREBLE_DOWN));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::TREBLE_PLUS10));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::TREBLE_MINUS10));
+	features[COMMAND_TYPE::TONE_CONTROL_COMMANDS].push_back(static_cast<int>(TONE_CONTROL_COMMANDS::TREBLE_ZERO));
+
+	features[COMMAND_TYPE::BALANCE_CONTROL_COMMANDS].push_back(static_cast<int>(BALANCE_CONTROL_COMMANDS::BALANCE_R));
+	features[COMMAND_TYPE::BALANCE_CONTROL_COMMANDS].push_back(static_cast<int>(BALANCE_CONTROL_COMMANDS::BALANCE_L));
+	features[COMMAND_TYPE::BALANCE_CONTROL_COMMANDS].push_back(static_cast<int>(BALANCE_CONTROL_COMMANDS::BALANCE_L15));
+	features[COMMAND_TYPE::BALANCE_CONTROL_COMMANDS].push_back(static_cast<int>(BALANCE_CONTROL_COMMANDS::BALANCE_R15));
+	features[COMMAND_TYPE::BALANCE_CONTROL_COMMANDS].push_back(static_cast<int>(BALANCE_CONTROL_COMMANDS::BALANCE_ZERO));
+
+	features[COMMAND_TYPE::SPEAKER_OUTPUT_COMMANDS].push_back(static_cast<int>(SPEAKER_OUTPUT_COMMANDS::SPEAKER_A));
+	features[COMMAND_TYPE::SPEAKER_OUTPUT_COMMANDS].push_back(static_cast<int>(SPEAKER_OUTPUT_COMMANDS::SPEAKER_B));
+	features[COMMAND_TYPE::SPEAKER_OUTPUT_COMMANDS].push_back(static_cast<int>(SPEAKER_OUTPUT_COMMANDS::SPEAKER_A_ON));
+	features[COMMAND_TYPE::SPEAKER_OUTPUT_COMMANDS].push_back(static_cast<int>(SPEAKER_OUTPUT_COMMANDS::SPEAKER_A_OFF));
+	features[COMMAND_TYPE::SPEAKER_OUTPUT_COMMANDS].push_back(static_cast<int>(SPEAKER_OUTPUT_COMMANDS::SPEAKER_B_ON));
+	features[COMMAND_TYPE::SPEAKER_OUTPUT_COMMANDS].push_back(static_cast<int>(SPEAKER_OUTPUT_COMMANDS::SPEAKER_B_OFF));
+
+	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER));
+	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER_0));
+	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER_1));
+	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER_2));
+	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER_3));
+	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER_4));
+	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER_5));
+	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER_6));
+
+}
+
+RotelA14::~RotelA14() {
+	// TODO Auto-generated destructor stub
+}
+
+const std::map<COMMAND_TYPE, std::vector<int>>& RotelA14::getFeatures() {
+	return features;
+}
+
+} /* namespace rotel */
