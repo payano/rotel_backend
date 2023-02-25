@@ -22,8 +22,16 @@
 namespace rotel {
 
 static constexpr int BUFFER_SZ = 32;
-
+static constexpr int PORT_NO = 9590;
 RotelBase::RotelBase() {
+	connectRotel();
+}
+
+RotelBase::~RotelBase() {
+	disconnectRotel();
+}
+
+void RotelBase::connectRotel() {
 	connected = false;
 	int ret;
 
@@ -35,7 +43,7 @@ RotelBase::RotelBase() {
 	}
 
 	sock_addr.sin_family = AF_INET;
-	sock_addr.sin_port = htons(portnr);
+	sock_addr.sin_port = htons(PORT_NO);
 	sock_addr.sin_addr.s_addr = inet_addr("10.10.20.124");
 	addr_size = sizeof(sock_other);
 
@@ -44,25 +52,22 @@ RotelBase::RotelBase() {
 		perror("connect");
 		return;
 	}
-
-/*
-	char *hello = "model?";
-	char buffer[1024];
-	send(sock, hello, strlen(hello), 0);
-	printf("%s message sent\n", hello);
-	int valread = read(sock, buffer, 20);
-	printf("%s received\n", buffer);
-	*/
 	connected = true;
 }
 
-RotelBase::~RotelBase() {
+void RotelBase::disconnectRotel() {
 	connected = false;
 	shutdown(sock, SHUT_RDWR);
 	close(sock);
 }
 
 void RotelBase::getSettings() {
+	if(false == connected) connectRotel();
+	if(false == connected) {
+		std::cout << "connection failed!" << std::endl;
+		return;
+	}
+
 	for(auto &setting : features[COMMAND_TYPE::REQUEST_COMMANDS]) {
 		REQUEST_COMMANDS cmd = static_cast<REQUEST_COMMANDS>(setting);
 		std::string command = requestCommand(cmd);
@@ -74,6 +79,22 @@ void RotelBase::getSettings() {
 		std::cout << "recv:" << substr << std::endl;
 		settings[cmd] = substr;
 	}
+}
+
+void RotelBase::setFeature(COMMAND_TYPE cmd, int type) {
+	switch(cmd) {
+	case COMMAND_TYPE::SOURCE_SELECTION_COMMANDS: {
+		SOURCE_SELECTION_COMMANDS command = static_cast<SOURCE_SELECTION_COMMANDS>(type);
+		std::string str_command = sourceSelectionCommand(command);
+		sendRecv(str_command);
+		break;
+	}
+	default: {
+
+	}
+	}
+
+
 }
 
 std::string RotelBase::sendRecv(std::string msg) {
@@ -94,7 +115,6 @@ SUPPORTED_MODELS RotelBase::getModel(std::string &ipv4_address) {
 	int ret;
 	struct sockaddr_in sock_addr;
 	struct sockaddr_in sock_other;
-	int portnr = 9590;
 	int addr_size;
 	int sock;
 
@@ -105,7 +125,7 @@ SUPPORTED_MODELS RotelBase::getModel(std::string &ipv4_address) {
 	}
 
 	sock_addr.sin_family = AF_INET;
-	sock_addr.sin_port = htons(portnr);
+	sock_addr.sin_port = htons(PORT_NO);
 	sock_addr.sin_addr.s_addr = inet_addr(ipv4_address.c_str());
 	addr_size = sizeof(sock_other);
 

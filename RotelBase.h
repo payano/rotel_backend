@@ -211,16 +211,19 @@ public:
 	virtual ~RotelBase();
 
 	virtual const std::map<COMMAND_TYPE, std::vector<int>>& getFeatures() = 0;
+	void setFeature(COMMAND_TYPE, int);
+	void getSettings();
 	static std::unique_ptr<RotelBase> get(std::string);
 
 
 protected:
-	bool connected;
 	std::map<COMMAND_TYPE, std::vector<int>> features;
 	std::map<REQUEST_COMMANDS, std::string> settings;
 
-	void getSettings();
 private:
+	bool connected;
+	void connectRotel();
+	void disconnectRotel();
 	std::string sendRecv(std::string);
 	static SUPPORTED_MODELS getModel(std::string &);
 	static SUPPORTED_MODELS getSupportedModel(char*);
@@ -237,7 +240,7 @@ private:
 
 	struct sockaddr_in sock_addr;
 	struct sockaddr_in sock_other;
-	int portnr = 9590;
+
 	int addr_size;
 	int sock;
 };
