@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <map>
 #include <vector>
+#include <memory>
 namespace rotel {
 
 //power_on! Power On power=on$
@@ -169,7 +170,6 @@ enum class REQUEST_COMMANDS {
 	MAC,
 	MODEL,
 	DISCOVER
-
 };
 
 enum class COMMAND_TYPE {
@@ -183,6 +183,11 @@ enum class COMMAND_TYPE {
 	REQUEST_COMMANDS
 };
 
+enum class SUPPORTED_MODELS {
+	UNKNOWN = 0,
+	A14
+};
+
 union commands {
 	POWER_AND_VOLUME_COMMANDS pwr;
 	SOURCE_SELECTION_COMMANDS src;
@@ -192,7 +197,8 @@ union commands {
 	SPEAKER_OUTPUT_COMMANDS   spkr;
 	OTHER_COMMANDS            othr;
 	REQUEST_COMMANDS          req;
-} ;
+};
+
 
 struct COMMANDS {
 	COMMAND_TYPE type;
@@ -205,11 +211,21 @@ public:
 	virtual ~RotelBase();
 
 	virtual const std::map<COMMAND_TYPE, std::vector<int>>& getFeatures() = 0;
+	static std::unique_ptr<RotelBase> get(std::string);
 
 
 protected:
 	bool connected;
+	std::map<COMMAND_TYPE, std::vector<int>> features;
+	std::map<REQUEST_COMMANDS, std::string> settings;
+
+	void getSettings();
 private:
+	std::string sendRecv(std::string);
+	static SUPPORTED_MODELS getModel(std::string &);
+	static SUPPORTED_MODELS getSupportedModel(char*);
+
+
 	std::string powerAndVolumeCommand(enum POWER_AND_VOLUME_COMMANDS, int);
 	std::string sourceSelectionCommand(enum SOURCE_SELECTION_COMMANDS);
 	std::string sourceControlCommand(SOURCE_CONTROL_COMMANDS);

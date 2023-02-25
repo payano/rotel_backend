@@ -12,7 +12,7 @@ public:
 	const std::map<COMMAND_TYPE, std::vector<int>>& getFeatures() override;
 
 private:
-	std::map<COMMAND_TYPE, std::vector<int>> features;
+
 };
 
 

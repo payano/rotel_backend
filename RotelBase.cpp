@@ -11,16 +11,23 @@
 #include <net/if.h>
 #include <netinet/ether.h>
 #include <unistd.h>
+#include "RotelA14.h"
 
 
 #include <string.h>
 #include "RotelBase.h"
 
+#include <iostream>
+
 namespace rotel {
+
+static constexpr int BUFFER_SZ = 32;
 
 RotelBase::RotelBase() {
 	connected = false;
 	int ret;
+
+
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if(-1 == sock) {
 		perror("socket");
@@ -38,20 +45,93 @@ RotelBase::RotelBase() {
 		return;
 	}
 
-
-	char *hello = "model!";
+/*
+	char *hello = "model?";
 	char buffer[1024];
 	send(sock, hello, strlen(hello), 0);
-	printf("Hello message sent\n");
-	int valread = read(sock, buffer, 1024);
-	printf("%s\n", buffer);
+	printf("%s message sent\n", hello);
+	int valread = read(sock, buffer, 20);
+	printf("%s received\n", buffer);
+	*/
 	connected = true;
 }
 
 RotelBase::~RotelBase() {
 	connected = false;
+	shutdown(sock, SHUT_RDWR);
 	close(sock);
 }
+
+void RotelBase::getSettings() {
+	for(auto &setting : features[COMMAND_TYPE::REQUEST_COMMANDS]) {
+		REQUEST_COMMANDS cmd = static_cast<REQUEST_COMMANDS>(setting);
+		std::string command = requestCommand(cmd);
+		std::cout << "command:" << command << std::endl;
+		std::string recv = sendRecv(command);
+		int equalsign = recv.find('=') + 1;
+		int dollarsign = recv.find('$');
+		std::string substr = recv.substr(equalsign, dollarsign-equalsign);
+		std::cout << "recv:" << substr << std::endl;
+		settings[cmd] = substr;
+	}
+}
+
+std::string RotelBase::sendRecv(std::string msg) {
+	char buffer[BUFFER_SZ] = {0};
+	send(sock, msg.c_str(), msg.length(), 0);
+	read(sock, buffer, sizeof(buffer));
+	return std::string(buffer);
+}
+
+std::unique_ptr<RotelBase> RotelBase::get(std::string ipv4_address){
+	switch(getModel(ipv4_address)) {
+	case SUPPORTED_MODELS::A14: return std::make_unique<RotelA14>();
+	default: return nullptr;
+	}
+}
+
+SUPPORTED_MODELS RotelBase::getModel(std::string &ipv4_address) {
+	int ret;
+	struct sockaddr_in sock_addr;
+	struct sockaddr_in sock_other;
+	int portnr = 9590;
+	int addr_size;
+	int sock;
+
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	if(-1 == sock) {
+		perror("socket");
+		return SUPPORTED_MODELS::UNKNOWN;
+	}
+
+	sock_addr.sin_family = AF_INET;
+	sock_addr.sin_port = htons(portnr);
+	sock_addr.sin_addr.s_addr = inet_addr(ipv4_address.c_str());
+	addr_size = sizeof(sock_other);
+
+	ret = connect(sock, (struct sockaddr*)&sock_addr, addr_size);
+	if(ret) {
+		perror("connect");
+		close(sock);
+		return SUPPORTED_MODELS::UNKNOWN;
+	}
+
+	std::string model = "model?";
+	char buffer[BUFFER_SZ] = {0};
+	send(sock, model.c_str(), model.length(), 0);
+	read(sock, buffer, sizeof(buffer));
+	shutdown(sock, SHUT_RDWR);
+	close(sock);
+	return getSupportedModel(buffer);
+
+}
+
+SUPPORTED_MODELS RotelBase::getSupportedModel(char* model) {
+	if(0 == strcmp(model, "model=a14$")) return SUPPORTED_MODELS::A14;
+
+	return SUPPORTED_MODELS::UNKNOWN;
+}
+
 
 std::string RotelBase::powerAndVolumeCommand(enum POWER_AND_VOLUME_COMMANDS cmd, int val) {
 	switch(cmd) {

@@ -13,7 +13,8 @@
 
 
 int main(void) {
-	rotel::RotelA14 a14;
+	std::unique_ptr<rotel::RotelBase> rb = rotel::RotelBase::get("10.10.20.124");
+
 
 
 //	int ret;

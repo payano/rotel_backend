@@ -75,6 +75,26 @@ RotelA14::RotelA14() {
 	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER_5));
 	features[COMMAND_TYPE::OTHER_COMMANDS].push_back(static_cast<int>(OTHER_COMMANDS::DIMMER_6));
 
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::POWER));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::SOURCE));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::VOLUME));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::MUTE));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::BYPASS));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::BASS));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::TREBLE));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::BALANCE));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::FREQ));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::SPEAKER));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::DIMMER));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::PCUSB));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::VERSION));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::PC_VERSION));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::IP));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::MAC));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::MODEL));
+	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::DISCOVER));
+
+	getSettings();
 }
 
 RotelA14::~RotelA14() {
