@@ -24,7 +24,9 @@ namespace rotel {
 static constexpr int BUFFER_SZ = 32;
 static constexpr int PORT_NO = 9590;
 RotelBase::RotelBase() {
+	std::cout << "HERE" << std::endl;
 	connectRotel();
+	getSettings();
 }
 
 RotelBase::~RotelBase() {
@@ -81,6 +83,10 @@ void RotelBase::getSettings() {
 	}
 }
 
+const std::map<COMMAND_TYPE, std::vector<int>>& RotelBase::getFeatures() {
+	return features;
+}
+
 void RotelBase::setFeature(COMMAND_TYPE cmd, int type) {
 	switch(cmd) {
 	case COMMAND_TYPE::SOURCE_SELECTION_COMMANDS: {
@@ -93,8 +99,6 @@ void RotelBase::setFeature(COMMAND_TYPE cmd, int type) {
 
 	}
 	}
-
-
 }
 
 std::string RotelBase::sendRecv(std::string msg) {
@@ -136,7 +140,7 @@ SUPPORTED_MODELS RotelBase::getModel(std::string &ipv4_address) {
 		return SUPPORTED_MODELS::UNKNOWN;
 	}
 
-	std::string model = "model?";
+	std::string model = requestCommand(REQUEST_COMMANDS::MODEL);
 	char buffer[BUFFER_SZ] = {0};
 	send(sock, model.c_str(), model.length(), 0);
 	read(sock, buffer, sizeof(buffer));

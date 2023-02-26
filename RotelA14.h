@@ -7,9 +7,7 @@ namespace rotel {
 class RotelA14 : public RotelBase {
 public:
 	RotelA14();
-	virtual ~RotelA14();
-
-	const std::map<COMMAND_TYPE, std::vector<int>>& getFeatures() override;
+	virtual ~RotelA14() = default;
 
 private:
 

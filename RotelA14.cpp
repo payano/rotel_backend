@@ -93,16 +93,7 @@ RotelA14::RotelA14() {
 	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::MAC));
 	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::MODEL));
 	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::DISCOVER));
-
-	getSettings();
-}
-
-RotelA14::~RotelA14() {
-	// TODO Auto-generated destructor stub
-}
-
-const std::map<COMMAND_TYPE, std::vector<int>>& RotelA14::getFeatures() {
-	return features;
+	RotelBase();
 }
 
 } /* namespace rotel */

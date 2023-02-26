@@ -210,7 +210,7 @@ public:
 	RotelBase();
 	virtual ~RotelBase();
 
-	virtual const std::map<COMMAND_TYPE, std::vector<int>>& getFeatures() = 0;
+	const std::map<COMMAND_TYPE, std::vector<int>>& getFeatures();
 	void setFeature(COMMAND_TYPE, int);
 	void getSettings();
 	static std::unique_ptr<RotelBase> get(std::string);
@@ -229,18 +229,17 @@ private:
 	static SUPPORTED_MODELS getSupportedModel(char*);
 
 
-	std::string powerAndVolumeCommand(enum POWER_AND_VOLUME_COMMANDS, int);
-	std::string sourceSelectionCommand(enum SOURCE_SELECTION_COMMANDS);
-	std::string sourceControlCommand(SOURCE_CONTROL_COMMANDS);
-	std::string toneControlCommand(TONE_CONTROL_COMMANDS);
-	std::string balanceControlCommand(BALANCE_CONTROL_COMMANDS);
-	std::string speakerOutputCommand(SPEAKER_OUTPUT_COMMANDS);
-	std::string otherCommand(OTHER_COMMANDS);
-	std::string requestCommand(REQUEST_COMMANDS);
+	static std::string powerAndVolumeCommand(enum POWER_AND_VOLUME_COMMANDS, int);
+	static std::string sourceSelectionCommand(enum SOURCE_SELECTION_COMMANDS);
+	static std::string sourceControlCommand(SOURCE_CONTROL_COMMANDS);
+	static std::string toneControlCommand(TONE_CONTROL_COMMANDS);
+	static std::string balanceControlCommand(BALANCE_CONTROL_COMMANDS);
+	static std::string speakerOutputCommand(SPEAKER_OUTPUT_COMMANDS);
+	static std::string otherCommand(OTHER_COMMANDS);
+	static std::string requestCommand(REQUEST_COMMANDS);
 
 	struct sockaddr_in sock_addr;
 	struct sockaddr_in sock_other;
-
 	int addr_size;
 	int sock;
 };
