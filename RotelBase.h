@@ -211,20 +211,23 @@ public:
 	virtual ~RotelBase();
 
 	const std::map<COMMAND_TYPE, std::vector<int>>& getFeatures();
-	void setFeature(COMMAND_TYPE, int);
-	void getSettings();
+	void setFeature(COMMAND_TYPE, int, int = 0);
 	static std::unique_ptr<RotelBase> get(std::string);
-
+	const std::map<REQUEST_COMMANDS, std::string>& getSettings();
 
 protected:
 	std::map<COMMAND_TYPE, std::vector<int>> features;
 	std::map<REQUEST_COMMANDS, std::string> settings;
+	void retrieveSettings();
 
 private:
 	bool connected;
 	void connectRotel();
 	void disconnectRotel();
-	std::string sendRecv(std::string);
+	std::string sendRecv(std::string&);
+	std::string getValue(std::string&);
+
+
 	static SUPPORTED_MODELS getModel(std::string &);
 	static SUPPORTED_MODELS getSupportedModel(char*);
 

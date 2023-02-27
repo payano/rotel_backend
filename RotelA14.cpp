@@ -93,7 +93,6 @@ RotelA14::RotelA14() {
 	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::MAC));
 	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::MODEL));
 	features[COMMAND_TYPE::REQUEST_COMMANDS].push_back(static_cast<int>(REQUEST_COMMANDS::DISCOVER));
-	RotelBase();
 }
 
 } /* namespace rotel */

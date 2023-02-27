@@ -21,12 +21,10 @@
 
 namespace rotel {
 
-static constexpr int BUFFER_SZ = 32;
+static constexpr int BUFFER_SZ = 512;
 static constexpr int PORT_NO = 9590;
 RotelBase::RotelBase() {
-	std::cout << "HERE" << std::endl;
 	connectRotel();
-	getSettings();
 }
 
 RotelBase::~RotelBase() {
@@ -63,7 +61,7 @@ void RotelBase::disconnectRotel() {
 	close(sock);
 }
 
-void RotelBase::getSettings() {
+void RotelBase::retrieveSettings() {
 	if(false == connected) connectRotel();
 	if(false == connected) {
 		std::cout << "connection failed!" << std::endl;
@@ -73,13 +71,8 @@ void RotelBase::getSettings() {
 	for(auto &setting : features[COMMAND_TYPE::REQUEST_COMMANDS]) {
 		REQUEST_COMMANDS cmd = static_cast<REQUEST_COMMANDS>(setting);
 		std::string command = requestCommand(cmd);
-		std::cout << "command:" << command << std::endl;
 		std::string recv = sendRecv(command);
-		int equalsign = recv.find('=') + 1;
-		int dollarsign = recv.find('$');
-		std::string substr = recv.substr(equalsign, dollarsign-equalsign);
-		std::cout << "recv:" << substr << std::endl;
-		settings[cmd] = substr;
+		settings[cmd] = getValue(recv);
 	}
 }
 
@@ -87,32 +80,134 @@ const std::map<COMMAND_TYPE, std::vector<int>>& RotelBase::getFeatures() {
 	return features;
 }
 
-void RotelBase::setFeature(COMMAND_TYPE cmd, int type) {
+void RotelBase::setFeature(COMMAND_TYPE cmd, int type, int val) {
 	switch(cmd) {
-	case COMMAND_TYPE::SOURCE_SELECTION_COMMANDS: {
-		SOURCE_SELECTION_COMMANDS command = static_cast<SOURCE_SELECTION_COMMANDS>(type);
-		std::string str_command = sourceSelectionCommand(command);
-		sendRecv(str_command);
+	case COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS: {
+		POWER_AND_VOLUME_COMMANDS command = static_cast<POWER_AND_VOLUME_COMMANDS>(type);
+		std::string str_command = powerAndVolumeCommand(command, val);
+		std::string recv = sendRecv(str_command);
+		std::string recv_val = getValue(recv);
+		switch(command) {
+		case POWER_AND_VOLUME_COMMANDS::POWER_ON: /* fall through */
+		case POWER_AND_VOLUME_COMMANDS::POWER_OFF: /* fall through */
+		case POWER_AND_VOLUME_COMMANDS::POWER_TOGGLE:
+			settings[REQUEST_COMMANDS::POWER] = recv_val;
+			break;
+		case POWER_AND_VOLUME_COMMANDS::VOL_UP: /* fall through */
+		case POWER_AND_VOLUME_COMMANDS::VOL_DOWN: /* fall through */
+		case POWER_AND_VOLUME_COMMANDS::VOL_NN:
+			settings[REQUEST_COMMANDS::VOLUME] = recv_val;
+			break;
+		case POWER_AND_VOLUME_COMMANDS::MUTE: /* fall through */
+		case POWER_AND_VOLUME_COMMANDS::MUTE_ON: /* fall through */
+		case POWER_AND_VOLUME_COMMANDS::MUTE_OFF:
+			settings[REQUEST_COMMANDS::MUTE] = recv_val;
+			break;
+		}
 		break;
 	}
-	default: {
+	case COMMAND_TYPE::SOURCE_SELECTION_COMMANDS:{
+		SOURCE_SELECTION_COMMANDS command = static_cast<SOURCE_SELECTION_COMMANDS>(type);
+		std::string str_command = sourceSelectionCommand(command);
+		std::string recv = sendRecv(str_command);
+		std::string recv_val = getValue(recv);
+		settings[REQUEST_COMMANDS::SOURCE] = recv_val;
 
+		break;
+	}
+	case COMMAND_TYPE::SOURCE_CONTROL_COMMANDS:{
+		SOURCE_CONTROL_COMMANDS command = static_cast<SOURCE_CONTROL_COMMANDS>(type);
+		std::string str_command = sourceControlCommand(command);
+		sendRecv(str_command);
+		/* Nothing is updated... */
+		break;
+
+	}
+	case COMMAND_TYPE::TONE_CONTROL_COMMANDS:{
+		TONE_CONTROL_COMMANDS command = static_cast<TONE_CONTROL_COMMANDS>(type);
+		std::string str_command = toneControlCommand(command);
+		std::string recv = sendRecv(str_command);
+		std::string recv_val = getValue(recv);
+		switch(command) {
+		case TONE_CONTROL_COMMANDS::BYPASS_ON: /* fall through */
+		case TONE_CONTROL_COMMANDS::BYPASS_OFF: /* fall through */
+			settings[REQUEST_COMMANDS::BYPASS] = recv_val;
+			break;
+		case TONE_CONTROL_COMMANDS::BASS_UP: /* fall through */
+		case TONE_CONTROL_COMMANDS::BASS_DOWN: /* fall through */
+		case TONE_CONTROL_COMMANDS::BASS_PLUS10: /* fall through */
+		case TONE_CONTROL_COMMANDS::BASS_MINUS10: /* fall through */
+		case TONE_CONTROL_COMMANDS::BASS_ZERO: /* fall through */
+			settings[REQUEST_COMMANDS::BASS] = recv_val;
+			break;
+		case TONE_CONTROL_COMMANDS::TREBLE_UP: /* fall through */
+		case TONE_CONTROL_COMMANDS::TREBLE_DOWN: /* fall through */
+		case TONE_CONTROL_COMMANDS::TREBLE_PLUS10: /* fall through */
+		case TONE_CONTROL_COMMANDS::TREBLE_MINUS10: /* fall through */
+		case TONE_CONTROL_COMMANDS::TREBLE_ZERO: /* fall through */
+			settings[REQUEST_COMMANDS::TREBLE] = recv_val;
+			break;
+		}
+		break;
+
+	}
+	case COMMAND_TYPE::BALANCE_CONTROL_COMMANDS:{
+		BALANCE_CONTROL_COMMANDS command = static_cast<BALANCE_CONTROL_COMMANDS>(type);
+		std::string str_command = balanceControlCommand(command);
+		std::string recv = sendRecv(str_command);
+		std::string recv_val = getValue(recv);
+		settings[REQUEST_COMMANDS::BALANCE] = recv_val;
+		break;
+
+	}
+	case COMMAND_TYPE::SPEAKER_OUTPUT_COMMANDS:{
+		SPEAKER_OUTPUT_COMMANDS command = static_cast<SPEAKER_OUTPUT_COMMANDS>(type);
+		std::string str_command = speakerOutputCommand(command);
+		std::string recv = sendRecv(str_command);
+		std::string recv_val = getValue(recv);
+		settings[REQUEST_COMMANDS::SPEAKER] = recv_val;
+		break;
+
+	}
+	case COMMAND_TYPE::OTHER_COMMANDS:{
+		OTHER_COMMANDS command = static_cast<OTHER_COMMANDS>(type);
+		std::string str_command = otherCommand(command);
+		std::string recv = sendRecv(str_command);
+		std::string recv_val = getValue(recv);
+		settings[REQUEST_COMMANDS::DIMMER] = recv_val;
+		break;
+
+	}
+	default: {
 	}
 	}
 }
 
-std::string RotelBase::sendRecv(std::string msg) {
+std::string RotelBase::sendRecv(std::string& msg) {
 	char buffer[BUFFER_SZ] = {0};
 	send(sock, msg.c_str(), msg.length(), 0);
 	read(sock, buffer, sizeof(buffer));
 	return std::string(buffer);
 }
 
+std::string RotelBase::getValue(std::string& val) {
+	int first = val.find('=') + 1;
+	int last = val.find('$');
+	return val.substr(first, last - first);
+}
+
 std::unique_ptr<RotelBase> RotelBase::get(std::string ipv4_address){
+	std::unique_ptr<RotelBase> ret;
 	switch(getModel(ipv4_address)) {
-	case SUPPORTED_MODELS::A14: return std::make_unique<RotelA14>();
+	case SUPPORTED_MODELS::A14: ret = std::make_unique<RotelA14>(); break;
 	default: return nullptr;
 	}
+	ret->retrieveSettings();
+	return ret;
+}
+
+const std::map<REQUEST_COMMANDS, std::string>& RotelBase::getSettings() {
+	return settings;
 }
 
 SUPPORTED_MODELS RotelBase::getModel(std::string &ipv4_address) {
