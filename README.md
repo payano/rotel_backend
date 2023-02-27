@@ -1,6 +1,9 @@
-Work ongoing...
+= Whats working =
+* Retrieving status and set status, bugs might exist, please report them if you find something!
 
-Will add my reciever first but other Rotel ethernet devices could easily be added as well.
+= Whats next? =
+Backend has formalized, A frotend is needed, will write one for Android soon.
+
 
 Current state:
 
