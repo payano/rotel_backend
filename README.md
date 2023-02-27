@@ -1,7 +1,7 @@
-= Whats working =
+# What's working
 * Retrieving status and set status, bugs might exist, please report them if you find something!
 
-= Whats next? =
+# Whats next?
 Backend has formalized, A frotend is needed, will write one for Android soon.
 
 
