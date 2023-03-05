@@ -214,6 +214,9 @@ public:
 	void setFeature(COMMAND_TYPE, int, int = 0);
 	static std::unique_ptr<RotelBase> get(std::string);
 	const std::map<REQUEST_COMMANDS, std::string>& getSettings();
+	void sayHello() {
+
+	}
 
 protected:
 	std::map<COMMAND_TYPE, std::vector<int>> features;

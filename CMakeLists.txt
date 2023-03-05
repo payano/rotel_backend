@@ -10,9 +10,10 @@ project(rotel)
 ############################################################
 
 #Generate the static library from the library sources
-add_library(rotel STATIC 
+add_library(rotel SHARED
     src/RotelA14.cpp
     src/RotelBase.cpp
+    src/JNICalls.cpp
 )
 
 
@@ -28,12 +29,6 @@ include_directories(
 ############################################################
 
 # Add an executable with the above sources
-add_executable(testApp
-    src/main.cpp
-)
-
-
-target_link_libraries (testApp
-    rotel
-)
-
+#add_executable(testApp
+#    src/main.cpp
+#)

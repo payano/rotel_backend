@@ -14,10 +14,11 @@
 #include "RotelA14.h"
 
 
-#include <string.h>
+#include <string>
 #include "RotelBase.h"
 
 #include <iostream>
+#include <jni.h>
 
 namespace rotel {
 
@@ -62,14 +63,14 @@ void RotelBase::disconnectRotel() {
 }
 
 void RotelBase::retrieveSettings() {
-	if(false == connected) connectRotel();
-	if(false == connected) {
+	if(!connected) connectRotel();
+	if(!connected) {
 		std::cout << "connection failed!" << std::endl;
 		return;
 	}
 
 	for(auto &setting : features[COMMAND_TYPE::REQUEST_COMMANDS]) {
-		REQUEST_COMMANDS cmd = static_cast<REQUEST_COMMANDS>(setting);
+		auto cmd = static_cast<REQUEST_COMMANDS>(setting);
 		std::string command = requestCommand(cmd);
 		std::string recv = sendRecv(command);
 		settings[cmd] = getValue(recv);
@@ -83,7 +84,7 @@ const std::map<COMMAND_TYPE, std::vector<int>>& RotelBase::getFeatures() {
 void RotelBase::setFeature(COMMAND_TYPE cmd, int type, int val) {
 	switch(cmd) {
 	case COMMAND_TYPE::POWER_AND_VOLUME_COMMANDS: {
-		POWER_AND_VOLUME_COMMANDS command = static_cast<POWER_AND_VOLUME_COMMANDS>(type);
+		auto command = static_cast<POWER_AND_VOLUME_COMMANDS>(type);
 		std::string str_command = powerAndVolumeCommand(command, val);
 		std::string recv = sendRecv(str_command);
 		std::string recv_val = getValue(recv);
@@ -107,7 +108,7 @@ void RotelBase::setFeature(COMMAND_TYPE cmd, int type, int val) {
 		break;
 	}
 	case COMMAND_TYPE::SOURCE_SELECTION_COMMANDS:{
-		SOURCE_SELECTION_COMMANDS command = static_cast<SOURCE_SELECTION_COMMANDS>(type);
+		auto command = static_cast<SOURCE_SELECTION_COMMANDS>(type);
 		std::string str_command = sourceSelectionCommand(command);
 		std::string recv = sendRecv(str_command);
 		std::string recv_val = getValue(recv);
@@ -116,7 +117,7 @@ void RotelBase::setFeature(COMMAND_TYPE cmd, int type, int val) {
 		break;
 	}
 	case COMMAND_TYPE::SOURCE_CONTROL_COMMANDS:{
-		SOURCE_CONTROL_COMMANDS command = static_cast<SOURCE_CONTROL_COMMANDS>(type);
+		auto command = static_cast<SOURCE_CONTROL_COMMANDS>(type);
 		std::string str_command = sourceControlCommand(command);
 		sendRecv(str_command);
 		/* Nothing is updated... */
@@ -124,7 +125,7 @@ void RotelBase::setFeature(COMMAND_TYPE cmd, int type, int val) {
 
 	}
 	case COMMAND_TYPE::TONE_CONTROL_COMMANDS:{
-		TONE_CONTROL_COMMANDS command = static_cast<TONE_CONTROL_COMMANDS>(type);
+		auto command = static_cast<TONE_CONTROL_COMMANDS>(type);
 		std::string str_command = toneControlCommand(command);
 		std::string recv = sendRecv(str_command);
 		std::string recv_val = getValue(recv);
@@ -152,7 +153,7 @@ void RotelBase::setFeature(COMMAND_TYPE cmd, int type, int val) {
 
 	}
 	case COMMAND_TYPE::BALANCE_CONTROL_COMMANDS:{
-		BALANCE_CONTROL_COMMANDS command = static_cast<BALANCE_CONTROL_COMMANDS>(type);
+		auto command = static_cast<BALANCE_CONTROL_COMMANDS>(type);
 		std::string str_command = balanceControlCommand(command);
 		std::string recv = sendRecv(str_command);
 		std::string recv_val = getValue(recv);
@@ -161,7 +162,7 @@ void RotelBase::setFeature(COMMAND_TYPE cmd, int type, int val) {
 
 	}
 	case COMMAND_TYPE::SPEAKER_OUTPUT_COMMANDS:{
-		SPEAKER_OUTPUT_COMMANDS command = static_cast<SPEAKER_OUTPUT_COMMANDS>(type);
+		auto command = static_cast<SPEAKER_OUTPUT_COMMANDS>(type);
 		std::string str_command = speakerOutputCommand(command);
 		std::string recv = sendRecv(str_command);
 		std::string recv_val = getValue(recv);
@@ -170,7 +171,7 @@ void RotelBase::setFeature(COMMAND_TYPE cmd, int type, int val) {
 
 	}
 	case COMMAND_TYPE::OTHER_COMMANDS:{
-		OTHER_COMMANDS command = static_cast<OTHER_COMMANDS>(type);
+		auto command = static_cast<OTHER_COMMANDS>(type);
 		std::string str_command = otherCommand(command);
 		std::string recv = sendRecv(str_command);
 		std::string recv_val = getValue(recv);
@@ -187,7 +188,7 @@ std::string RotelBase::sendRecv(std::string& msg) {
 	char buffer[BUFFER_SZ] = {0};
 	send(sock, msg.c_str(), msg.length(), 0);
 	read(sock, buffer, sizeof(buffer));
-	return std::string(buffer);
+	return buffer;
 }
 
 std::string RotelBase::getValue(std::string& val) {
@@ -259,7 +260,7 @@ std::string RotelBase::powerAndVolumeCommand(enum POWER_AND_VOLUME_COMMANDS cmd,
 	case POWER_AND_VOLUME_COMMANDS::POWER_TOGGLE: return "power_toggle!";
 	case POWER_AND_VOLUME_COMMANDS::VOL_UP:       return "vol_up!";
 	case POWER_AND_VOLUME_COMMANDS::VOL_DOWN:     return "vol_down!";
-	case POWER_AND_VOLUME_COMMANDS::VOL_NN:       return "vol_" + val;
+	case POWER_AND_VOLUME_COMMANDS::VOL_NN:       return "vol_" + std::to_string(val);
 	case POWER_AND_VOLUME_COMMANDS::MUTE:         return "mute!";
 	case POWER_AND_VOLUME_COMMANDS::MUTE_ON:      return "mute_on!";
 	case POWER_AND_VOLUME_COMMANDS::MUTE_OFF:     return "mute_off!";
@@ -377,3 +378,138 @@ std::string RotelBase::requestCommand(REQUEST_COMMANDS cmd) {
 }
 
 } /* namespace rotel */
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_rotel_RotelLib_sayHello(JNIEnv *env, jobject thiz) {
+    // TODO: implement sayHello()
+    printf("LINE: %d\n", __LINE__);
+    std::cout << "IS IT RIGHT??" << std::endl;
+
+    static std::unique_ptr<rotel::RotelBase> r = rotel::RotelBase::get("10.10.20.124");
+    //if(nullptr == r) return;
+    const std::map<int, std::vector<int>> features = (const std::map<int, std::vector<int>> &) r->getFeatures();
+
+    jclass mapClass = env->FindClass("java/util/HashMap");
+    jclass cls = env->FindClass("java/lang/Integer");
+
+    if(mapClass == NULL || cls == NULL)
+        return;
+/*
+    jmethodID init = env->GetMethodID(mapClass, "<init>", "()V");
+    jobject hashMap = env->NewObject(mapClass, init);
+    jmethodID put = env->GetMethodID(mapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+*/
+
+    /*
+     * // Grab Fields
+        jclass cls = env->GetObjectClass(obj);
+        jfieldID fid = env->GetFieldID(cls, "testField", "[I");
+
+        jintArray jary;
+        jary = (jintArray)env->GetObjectField(obj, fid);
+        jint *body = env->GetIntArrayElements(jary, 0);
+        body[0] = 3000;
+        env->ReleaseIntArrayElements(jary, body, 0);
+     */
+    jsize map_len = 1;
+
+    jmethodID init = env->GetMethodID(mapClass, "<init>", "(I)V");
+    jobject hashMap = env->NewObject(mapClass, init, map_len);
+    jmethodID midInit = env->GetMethodID(cls, "<init>", "(I)V");
+
+    jmethodID put = env->GetMethodID(mapClass, "put",
+                                        "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+    printf("LINE: %d\n", __LINE__);
+
+    for(auto &key : features) {
+        jobject keyValue = env->NewObject(cls, midInit, key.first);
+        jintArray itemArray = env->NewIntArray(key.second.size());
+        jint *body = env->GetIntArrayElements(itemArray, 0);
+        for(size_t i = 0; i < key.second.size(); ++i) {
+            body[i] = key.second[i];
+        }
+        env->CallObjectMethod(hashMap, put, keyValue, itemArray);
+        env->DeleteLocalRef(keyValue);
+        //env->ReleaseIntArrayElements(itemArray, body, 0);
+    }
+	(void)env;
+	(void)thiz;
+}
+
+static std::unique_ptr<rotel::RotelBase> r;
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_example_rotel_RotelLib_cpp_1getFeatures(JNIEnv *env, jobject thiz) {
+	(void)thiz;
+		jclass mapClass = env->FindClass("java/util/HashMap");
+		if(mapClass == NULL)
+			return NULL;
+
+	jclass cls = env->FindClass("java/lang/Integer");
+	jmethodID midInit = env->GetMethodID(cls, "<init>", "(I)V");
+
+	//if(nullptr == r) return;
+	const std::map<int, std::vector<int>> map = (const std::map<int, std::vector<int>> &) r->getFeatures();
+
+	jclass java_util_ArrayList      = static_cast<jclass>(env->NewGlobalRef(env->FindClass("java/util/ArrayList")));
+	jmethodID java_util_ArrayList_     = env->GetMethodID(java_util_ArrayList, "<init>", "(I)V");
+	//jmethodID java_util_ArrayList_size = env->GetMethodID (java_util_ArrayList, "size", "()I");
+	//jmethodID java_util_ArrayList_get  = env->GetMethodID(java_util_ArrayList, "get", "(I)Ljava/lang/Object;");
+	jmethodID java_util_ArrayList_add  = env->GetMethodID(java_util_ArrayList, "add", "(Ljava/lang/Object;)Z");
+
+
+
+	jmethodID init = env->GetMethodID(mapClass, "<init>", "()V");
+		jobject hashMap = env->NewObject(mapClass, init);
+		jmethodID put = env->GetMethodID(mapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+		std::map<int, std::vector<int>>::const_iterator citr = map.begin();
+		int i = 0;
+		for( ; citr != map.end(); ++citr) {
+			jobject keyJava = env->NewObject(cls,midInit, i++);
+			//jobject valueJava = env->NewObject(cls,midInit, 3);
+
+			jobject result = env->NewObject(java_util_ArrayList, java_util_ArrayList_, (int)citr->second.size());
+			for(auto& item : citr->second) {
+				jobject value = env->NewObject(cls, midInit, (int)item);
+				env->CallBooleanMethod(result, java_util_ArrayList_add, value);
+				env->DeleteLocalRef(value);
+			}
+
+			env->CallObjectMethod(hashMap, put, keyJava, result);
+
+			env->DeleteLocalRef(keyJava);
+			env->DeleteLocalRef(result);
+		}
+
+		jobject hashMapGobal = static_cast<jobject>(env->NewGlobalRef(hashMap));
+		env->DeleteLocalRef(hashMap);
+		env->DeleteLocalRef(mapClass);
+
+		return hashMapGobal;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_rotel_RotelLib_cpp_1init(JNIEnv *env, jobject thiz) {
+	(void) env;
+	(void) thiz;
+	r = rotel::RotelBase::get("10.10.20.124");
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_rotel_RotelLib_cpp_1deinit(JNIEnv *env, jobject thiz) {
+	(void) env;
+	(void) thiz;
+	r = nullptr;
+}
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_example_rotel_RotelLib_cpp_1getSettings(JNIEnv *env, jobject thiz) {
+	(void) env;
+	(void) thiz;
+	r->getSettings();
+	return nullptr;
+}
