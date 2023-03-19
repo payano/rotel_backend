@@ -207,12 +207,12 @@ struct COMMANDS {
 
 class RotelBase {
 public:
-	RotelBase();
+	RotelBase(const std::string &);
 	virtual ~RotelBase();
 
 	const std::map<COMMAND_TYPE, std::vector<int>>& getFeatures();
 	void setFeature(COMMAND_TYPE, int, int = 0);
-	static std::unique_ptr<RotelBase> get(std::string);
+	static std::unique_ptr<RotelBase> get(const std::string&);
 	const std::map<REQUEST_COMMANDS, std::string>& getSettings();
 	void sayHello() {
 
@@ -225,13 +225,14 @@ protected:
 
 private:
 	bool connected;
+	std::string ipaddr;
 	void connectRotel();
 	void disconnectRotel();
 	std::string sendRecv(std::string&);
 	std::string getValue(std::string&);
 
 
-	static SUPPORTED_MODELS getModel(std::string &);
+	static SUPPORTED_MODELS getModel(const std::string &);
 	static SUPPORTED_MODELS getSupportedModel(char*);
 
 

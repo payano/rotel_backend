@@ -24,7 +24,8 @@ namespace rotel {
 
 static constexpr int BUFFER_SZ = 512;
 static constexpr int PORT_NO = 9590;
-RotelBase::RotelBase() {
+RotelBase::RotelBase(const std::string &ip) {
+    ipaddr = ip;
 	connectRotel();
 }
 
@@ -45,7 +46,7 @@ void RotelBase::connectRotel() {
 
 	sock_addr.sin_family = AF_INET;
 	sock_addr.sin_port = htons(PORT_NO);
-	sock_addr.sin_addr.s_addr = inet_addr("10.10.20.124");
+	sock_addr.sin_addr.s_addr = inet_addr(ipaddr.c_str());
 	addr_size = sizeof(sock_other);
 
 	ret = connect(sock, (struct sockaddr*)&sock_addr, addr_size);
@@ -197,10 +198,10 @@ std::string RotelBase::getValue(std::string& val) {
 	return val.substr(first, last - first);
 }
 
-std::unique_ptr<RotelBase> RotelBase::get(std::string ipv4_address){
+std::unique_ptr<RotelBase> RotelBase::get(const std::string& ipv4_address){
 	std::unique_ptr<RotelBase> ret;
 	switch(getModel(ipv4_address)) {
-	case SUPPORTED_MODELS::A14: ret = std::make_unique<RotelA14>(); break;
+	case SUPPORTED_MODELS::A14: ret = std::make_unique<RotelA14>(ipv4_address); break;
 	default: return nullptr;
 	}
 	ret->retrieveSettings();
@@ -211,7 +212,7 @@ const std::map<REQUEST_COMMANDS, std::string>& RotelBase::getSettings() {
 	return settings;
 }
 
-SUPPORTED_MODELS RotelBase::getModel(std::string &ipv4_address) {
+SUPPORTED_MODELS RotelBase::getModel(const std::string &ipv4_address) {
 	int ret;
 	struct sockaddr_in sock_addr;
 	struct sockaddr_in sock_other;
@@ -381,9 +382,12 @@ std::string RotelBase::requestCommand(REQUEST_COMMANDS cmd) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_rotel_RotelLib_sayHello(JNIEnv *env, jobject thiz) {
+Java_com_example_rotel_RotelLib_sayHello(JNIEnv *env, jobject thiz, jstring ipaddr) {
     // TODO: implement sayHello()
     printf("LINE: %d\n", __LINE__);
+    const char *cstr = env->GetStringUTFChars(ipaddr, nullptr);
+
+	(void)cstr;
     std::cout << "IS IT RIGHT??" << std::endl;
 
     static std::unique_ptr<rotel::RotelBase> r = rotel::RotelBase::get("10.10.20.124");
@@ -512,4 +516,13 @@ Java_com_example_rotel_RotelLib_cpp_1getSettings(JNIEnv *env, jobject thiz) {
 	(void) thiz;
 	r->getSettings();
 	return nullptr;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_rotel_RotelLib_sss(JNIEnv *env, jobject thiz, jstring s) {
+	(void) env;
+	(void) thiz;
+	(void) s;
+    // TODO: implement sss()
 }
